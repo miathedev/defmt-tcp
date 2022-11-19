@@ -1,4 +1,4 @@
-# defmt-uart
+# defmt-tcp
 
 > A tool to decode and print [`defmt`] logs received through a tcp socket.
 
