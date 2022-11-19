@@ -8,6 +8,10 @@ This crate is a derived work from the original [defmt](https://github.com/knurli
 
 [`defmt`]: https://crates.io/crates/defmt
 
+## Installation
+
+run ```cargo install defmt-tcp```
+
 ## Support
 
 Original `defmt` work is part of the [Knurling] project, [Ferrous Systems]' effort at
