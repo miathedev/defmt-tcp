@@ -1,6 +1,5 @@
 use defmt_decoder::Table;
 use defmt_decoder::{DecodeError, Frame, Locations, StreamDecoder};
-use serialport::{self, FlowControl, Parity, StopBits};
 use std::env;
 use std::io::Read;
 use std::net::TcpStream;
@@ -17,23 +16,6 @@ pub enum SerialError {
     InvalidStopBitsString(String),
     #[error("Defmt data not found")]
     DefmtDataNotFound,
-}
-
-fn try_to_serial_parity(parity: &str) -> Result<Parity, SerialError> {
-    match parity {
-        "odd" => Ok(Parity::Odd),
-        "even" => Ok(Parity::Even),
-        "none" => Ok(Parity::None),
-        _ => Err(SerialError::InvalidParityString(parity.to_owned())),
-    }
-}
-
-fn try_to_serial_stop_bits(stop_bits: &str) -> Result<StopBits, SerialError> {
-    match stop_bits {
-        "1" => Ok(StopBits::One),
-        "2" => Ok(StopBits::Two),
-        _ => Err(SerialError::InvalidStopBitsString(stop_bits.to_owned())),
-    }
 }
 
 #[derive(Debug, StructOpt)]
@@ -58,8 +40,13 @@ struct Opts {
 fn main() -> anyhow::Result<()> {
     let opts = Opts::from_args();
 
-    let verbose = false;
-    defmt_decoder::log::init_logger(verbose, |_| true);
+    //Taken from: https://github.com/knurling-rs/probe-run/blob/main/src/main.rs
+    const DEFAULT_LOG_FORMAT_WITHOUT_TIMESTAMP: &str = "{L} {s}\n└─ {m} @ {F}:{l}";
+    const DEFAULT_VERBOSE_HOST_LOG_FORMAT: &str = "(HOST) {L} {s}\n└─ {m} @ {F}:{l}";
+    
+    defmt_decoder::log::init_logger(Some(DEFAULT_LOG_FORMAT_WITHOUT_TIMESTAMP), Some(DEFAULT_VERBOSE_HOST_LOG_FORMAT), false, move |metadata| {
+        metadata.target().starts_with("defmt")
+    });
 
     let current_dir = &env::current_dir()?;
 
@@ -71,7 +58,6 @@ fn main() -> anyhow::Result<()> {
 
     let connection_string = format!("{}:{}", opts.ip, opts.port);
     let mut stream = TcpStream::connect(connection_string)?;
-
 
     let mut read_buf = [0; 1024];
     loop {
@@ -85,7 +71,6 @@ fn main() -> anyhow::Result<()> {
         if num_bytes_read != 0 {
             let (stream_decoder, encoding) = &mut decoder_and_encoding;
             stream_decoder.received(&read_buf[..num_bytes_read]);
-
             match decode_and_print_defmt_logs(
                 &mut **stream_decoder,
                 locations.as_ref(),

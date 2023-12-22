@@ -1,7 +1,7 @@
 [package]
 name = "defmt-tcp"
-version = "0.1.1"
-edition = "2018"
+version = "0.1.2"
+edition = "2021"
 authors = ["Javier Alvarez <javier.alvarez@allthingsembedded.net>", "Mia Metzler <mia@metzler.systems>"]
 repository = "https://github.com/miathedev/defmt-tcp"
 readme = "README.md"
@@ -10,16 +10,14 @@ keywords = ["cli", "embedded", "defmt"]
 categories = ["command-line-utilities", "development-tools", "embedded"]
 license-file = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
+rust-version = "1.76.0"
 [dependencies]
-structopt = "0.3"
-thiserror = "1.0"
-ctrlc = "3.1.7"
-log = "0.4.14"
-serialport = "4.0"
-anyhow = "1.0.43"
+structopt = "0.3.26"
+thiserror = "1.0.51"
+log = "0.4.20"
+anyhow = "1.0.76"
 
 
 [dependencies.defmt-decoder]
-version = "=0.3.0"
+version = "0.3.9"
 features = ["unstable"]
